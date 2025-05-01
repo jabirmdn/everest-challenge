@@ -4,8 +4,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "time-estimate":"node time-estimate.js",
-    "cost-estimate":"node cost-estimate.js"
+    "time-estimate":"node entry-points/time-estimate.js",
+    "cost-estimate":"node entry-points/cost-estimate.js"
   },
   "keywords": [],
   "author": "",

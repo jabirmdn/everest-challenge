@@ -1,6 +1,6 @@
 import readline from 'readline';
-import * as packageService from './package-service.js';
-import * as vehicleService from './vehicle-service.js';
+import * as packageService from '../services/package-service.js';
+import * as vehicleService from '../services/vehicle-service.js';
 
 const rl = readline.createInterface({
 	input: process.stdin,
@@ -23,10 +23,10 @@ rl.on('line', (line) => {
 		if (packagesRead === numberOfPackages) {
 			const results = packageService.calculateDeliveryCost(baseDeliveryCost);
 			const [count, speed, weight] = line.trim().split(' ').map(Number);
-			
+
 			// Initialize vehicles
 			vehicleService.init(count, speed, weight);
-		  
+
 			packageService.calculateDeliveryTime();
 
 			// Log output

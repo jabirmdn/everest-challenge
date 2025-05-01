@@ -1,5 +1,5 @@
 import readline from 'readline';
-import * as packageService from './package-service.js';
+import * as packageService from '../services/package-service.js';
 
 const rl = readline.createInterface({
 	input: process.stdin,
@@ -33,10 +33,10 @@ rl.on('line', (line) => {
 		// If all packages are read, calculate delivery cost and log results
 		if (packagesRead === numberOfPackages) {
 			const results = packageService.calculateDeliveryCost(baseDeliveryCost);
-			results.forEach(result => {
+			results.forEach((result) => {
 				console.log(`${result.id} ${result.discount} ${result.totalCost}`);
 			});
-			
+
 			rl.close();
 		}
 	}
