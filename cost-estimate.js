@@ -1,4 +1,5 @@
 import readline from 'readline';
+import * as packageService from './package-service.js';
 
 const rl = readline.createInterface({
 	input: process.stdin,
@@ -19,8 +20,19 @@ rl.on('line', (line) => {
 		lineCount++;
 	} else {
 		const [id, weight, distance, offerCode] = line.trim().split(' ');
-    packagesRead++
+
+		packageService.addPackage({
+			id,
+			weight: Number(weight),
+			distance: Number(distance),
+			offerCode
+		});
+
+		packagesRead++;
+
 		if (packagesRead === numberOfPackages) {
+			packageService.calculateDeliveryCost(baseDeliveryCost);
+			rl.close();
 		}
 	}
 });
