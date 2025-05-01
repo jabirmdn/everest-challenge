@@ -18,11 +18,13 @@ function calculateDeliveryCost(baseDeliveryCost) {
 		if (offer && offerService.isApplicable(offer, pkg)) {
 			discount = Math.floor(deliveryCost * (offer.discount / 100));
 		}
-    pkg.discount = discount;
-    pkg.deliveryCost = deliveryCost;
-    pkg.totalCost = deliveryCost - discount;
+		pkg.discount = discount;
+		pkg.deliveryCost = deliveryCost;
+		pkg.totalCost = deliveryCost - discount;
 	}
-  return packages;
+	return packages;
 }
 
-export { addPackage, calculateDeliveryCost };
+function calculateDeliveryTime() {}
+
+export { addPackage, calculateDeliveryCost, calculateDeliveryTime };
