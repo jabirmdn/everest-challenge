@@ -31,7 +31,9 @@ rl.on('line', (line) => {
 
 			// Log output
 			results.forEach((result) => {
-				console.log(`${result.id} ${result.discount} ${result.totalCost} ${result.deliveryTime}`);
+				console.log(
+					`${result.id} ${result.discount} ${result.totalCost} ${result.deliveredAt} ${result.deliveryTime}`
+				);
 			});
 			rl.close();
 		}
@@ -48,3 +50,13 @@ rl.on('line', (line) => {
 		packagesRead++;
 	}
 });
+
+/** 
+100 5
+PKG1 50 30 OFR001
+PKG2 75 125 OFFR0008
+PKG3 175 100 OFFR003
+PKG4 110 60 OFFR002
+PKG5 155 95 NA
+2 70 200
+*/

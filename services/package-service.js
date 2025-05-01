@@ -1,4 +1,6 @@
 import * as offerService from './offer-service.js';
+import * as shipmentService from './shipment-service.js';
+import * as vehicleService from './vehicle-service.js';
 
 const packages = [];
 
@@ -25,6 +27,30 @@ function calculateDeliveryCost(baseDeliveryCost) {
 	return packages;
 }
 
-function calculateDeliveryTime() {}
+function calculateDeliveryTime(currentTime = 0) {
+	const packagesRemaining = getRemainingPackages();
+
+	// No packages remaining to be estimated
+	if (packagesRemaining.length === 0) return;
+
+	// if all vehicles are out for delivery, wait for atleast one to return
+	if (!vehicleService.hasAvailableVehicles()) {
+		const nextAvailableTime = vehicleService.waitForNextAvailability();
+		return calculateDeliveryTime(nextAvailableTime);
+	}
+
+	// Build a shipment based on the rules
+	const shipment = shipmentService.buildShipment(packagesRemaining);
+	if (!shipment) {
+		return `The following packages were not delivered: ${JSON.stringify(packagesRemaining)}`;
+	}
+	shipmentService.estimateDeliveredAt(shipment, currentTime);
+	vehicleService.startDelivery(shipment, currentTime);
+	return calculateDeliveryTime(currentTime);
+}
+
+function getRemainingPackages() {
+	return packages.filter((pkg) => !pkg.deliveredAt);
+}
 
 export { addPackage, calculateDeliveryCost, calculateDeliveryTime };
