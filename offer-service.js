@@ -1,40 +1,38 @@
 const offers = [
-  {
-    code: 'OFR001',
-    discount: 10,
-    minDistance: undefined,
-    maxDistance:200,
-    minWeight: 70,
-    maxWeight: 200, 
-  },
-  {
-    code: 'OFR002',
-    discount: 7,
-    minDistance: 50,
-    maxDistance:150,
-    minWeight: 100,
-    maxWeight: 250, 
-  },
-  {
-    code: 'OFR003',
-    discount: 5,
-    minDistance: 50,
-    maxDistance:250,
-    minWeight: 10,
-    maxWeight: 150, 
-  }
-]
+	{
+		code: 'OFR001',
+		discount: 10,
+		distance: { min: undefined, max: 200, minInclusive: false, maxInclusive: false },
+		weight: { min: 70, max: 200, minInclusive: true, maxInclusive: true }
+	},
+	{
+		code: 'OFR002',
+		discount: 7,
+		distance: { min: 50, max: 150, minInclusive: true, maxInclusive: true },
+		weight: { min: 100, max: 250, minInclusive: true, maxInclusive: true }
+	},
+	{
+		code: 'OFR003',
+		discount: 5,
+		distance: { min: 50, max: 250, minInclusive: true, maxInclusive: true },
+		weight: { min: 10, max: 150, minInclusive: true, maxInclusive: true }
+	}
+];
 
-function getOffer(code){
-  return offers.find((offer) => offer.code === code);
+function getOffer(code) {
+	return offers.find((offer) => offer.code === code);
 }
 
-function isApplicable(offer, pkg){
-  if(offer.minDistance && pkg.distance < offer.minDistance) return false;
-  if(offer.maxDistance && pkg.distance > offer.maxDistance) return false;
-  if(offer.minWeight && pkg.weight < offer.minWeight) return false;
-  if(offer.maxWeight && pkg.weight > offer.maxWeight) return false;
-  return true;
+function isInRange(range, value) {
+	const minCheck = range.min === undefined || (range.minInclusive ? value >= range.min : value > range.min);
+
+	const maxCheck = range.max === undefined || (range.maxInclusive ? value <= range.max : value < range.max);
+
+	return minCheck && maxCheck;
+}
+
+function isApplicable(offer, pkg) {
+	return isInRange(offer.distance, pkg.distance) && isInRange(offer.weight, pkg.weight);
 }
 
 export { getOffer, isApplicable };
