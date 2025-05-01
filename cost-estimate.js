@@ -30,8 +30,13 @@ rl.on('line', (line) => {
 
 		packagesRead++;
 
+		// If all packages are read, calculate delivery cost and log results
 		if (packagesRead === numberOfPackages) {
-			packageService.calculateDeliveryCost(baseDeliveryCost);
+			const results = packageService.calculateDeliveryCost(baseDeliveryCost);
+			results.forEach(result => {
+				console.log(`${result.id} ${result.discount} ${result.totalCost}`);
+			});
+			
 			rl.close();
 		}
 	}
