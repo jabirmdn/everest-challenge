@@ -17,7 +17,6 @@ function buildShipment(packages) {
 
 	if (shipments.length === 1) return shipments[0];
 
-
 	const heaviestShipments = selectHeaviestShipments(shipments);
 
 	// If only one heaviest shipment, return it
@@ -27,34 +26,64 @@ function buildShipment(packages) {
 	return selectFastestShipment(heaviestShipments);
 }
 
-function buildShipmentsOfMaxSize(packages, size = packages.length) {
-	const MAX_WEIGHT = vehicleService.config.maxWeight;
-	const sortedPackages = [...packages].sort((a, b) => a.weight - b.weight);
-	const shipments = [];
+/**
+ * Generates all possible shipments with the maximum number of packages
+ * that don't exceed the vehicle weight capacity
+ *
+ * @param {Package[]} packages - Available packages to allocate
+ * @param {number} targetShipmentSize - Target number of packages per shipment
+ * @returns {Shipment[]} Array of valid shipments
+ */
+function buildShipmentsOfMaxSize(packages, targetShipmentSize = packages.length) {
+	const maxVehicleCapacity = vehicleService.config.maxWeight;
+	// Sort packages by weight in ascending order for efficient packing
+	const weightSortedPackages = [...packages].sort((a, b) => a.weight - b.weight);
+	const possibleShipments = [];
 
-	function backtrack(currentPackages, start, currentWeight) {
-		if (currentPackages.length === size) {
-			const shipment = {
-				packages: [...currentPackages],
-				weight: currentWeight
+	/**
+	 * Recursively find all valid shipment combinations using backtracking
+	 * @param {Array} candidatePackages - Current packages being considered for the shipment
+	 * @param {Number} startIndex - Index to start considering packages from
+	 * @param {Number} totalWeight - Current accumulated weight of the shipment
+	 */
+	function findValidShipments(candidatePackages, startIndex, totalWeight) {
+		// Base case: we've reached our target shipment size
+		if (candidatePackages.length === targetShipmentSize) {
+			const validShipment = {
+				packages: [...candidatePackages],
+				weight: totalWeight
 			};
-			setDeliveryTimeForShipment(shipment);
-			shipments.push(shipment);
+			setDeliveryTimeForShipment(validShipment);
+			possibleShipments.push(validShipment);
 			return;
 		}
-		for (let i = start; i < sortedPackages.length; i++) {
-			const pkg = sortedPackages[i];
-			if (pkg.weight + currentWeight > MAX_WEIGHT) break;
-			currentPackages.push(pkg);
-			backtrack(currentPackages, i + 1, pkg.weight + currentWeight);
-			currentPackages.pop();
+
+		// Try adding each remaining package to our shipment
+		for (let i = startIndex; i < weightSortedPackages.length; i++) {
+			const packageToAdd = weightSortedPackages[i];
+			const newTotalWeight = totalWeight + packageToAdd.weight;
+
+			// Skip if adding this package would exceed vehicle capacity
+			if (newTotalWeight > maxVehicleCapacity) break;
+
+			// Add package to shipment and continue recursion
+			candidatePackages.push(packageToAdd);
+			findValidShipments(candidatePackages, i + 1, newTotalWeight);
+
+			// Backtrack: remove the package to try other combinations
+			candidatePackages.pop();
 		}
 	}
-	backtrack([], 0, 0);
-	if (shipments.length === 0) {
-		return buildShipmentsOfMaxSize(packages, size - 1);
+
+	// Start the recursive process with empty shipment
+	findValidShipments([], 0, 0);
+
+	// If no valid shipments found with current size, try with smaller size
+	if (possibleShipments.length === 0 && targetShipmentSize > 1) {
+		return buildShipmentsOfMaxSize(packages, targetShipmentSize - 1);
 	}
-	return shipments;
+
+	return possibleShipments;
 }
 
 function selectHeaviestShipments(shipments) {
@@ -64,8 +93,8 @@ function selectHeaviestShipments(shipments) {
 			maxWeight = shipment.weight;
 		}
 	}
-	
-	const heaviestShipments = shipments.filter(shipment => shipment.weight === maxWeight);
+
+	const heaviestShipments = shipments.filter((shipment) => shipment.weight === maxWeight);
 	return heaviestShipments;
 }
 
