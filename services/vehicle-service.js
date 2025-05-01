@@ -21,7 +21,7 @@ function init(count, speed, weight) {
 	}
 }
 
-function startDelivery(shipment, currentTime) {
+function allocateShipment(shipment, currentTime) {
 	const vehicle = getNextAvailableVehicle();
 	vehicle.outForDelivery = true;
 	vehicle.shipment = shipment;
@@ -58,4 +58,4 @@ function waitForNextAvailability() {
 	return nextAvailableTime;
 }
 
-export { config, init, hasAvailableVehicles, waitForNextAvailability, startDelivery };
+export { config, init, hasAvailableVehicles, waitForNextAvailability, allocateShipment };

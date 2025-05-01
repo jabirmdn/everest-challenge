@@ -1,18 +1,20 @@
 import * as vehicleService from './vehicle-service.js';
-
-// 1. Should contain max packages
-// 2. If multiple shipments are of the same size, choose the heaviest shipment
-// 3. If multiple shipments are of the same weight, prefer packages with lesser delivery time
-// 4. Total weight of the shipment should not exceed the vehicle's max weight
-// Shipment is an object with the following properties:
-// - packages: Array of packages
-// - weight: Total weight of the shipment
-// - deliveryTime: Total delivery time of the shipment
-
-function buildShipment(packages) {
+/** 
+*  1. Should contain max packages
+*  2. If multiple shipments are of the same size, choose the heaviest shipment
+*  3. If multiple shipments are of the same weight, prefer packages with lesser delivery time
+*  4. Total weight of the shipment should not exceed the vehicle's max weight
+*/
+/** 
+*  Shipment is an object with the following properties:
+*  - packages: Array of packages
+*  - weight: Total weight of the shipment
+*  - deliveryTime: Total delivery time of the shipment
+*/
+function createOptimalShipment(packages) {
 	if (!packages || packages.length === 0) return null;
 
-	const shipments = buildShipmentsOfMaxSize(packages);
+	const shipments = createMaximumCapacityShipments(packages);
 	if (shipments.length === 0) return null;
 
 	if (shipments.length === 1) return shipments[0];
@@ -23,7 +25,7 @@ function buildShipment(packages) {
 	if (heaviestShipments.length === 1) return heaviestShipments[0];
 
 	// 2. From heaviest shipments, select the one with minimum delivery time
-	return selectFastestShipment(heaviestShipments);
+	return selectShipmentWithMinDeliveryTime(heaviestShipments);
 }
 
 /**
@@ -34,7 +36,7 @@ function buildShipment(packages) {
  * @param {number} targetShipmentSize - Target number of packages per shipment
  * @returns {Shipment[]} Array of valid shipments
  */
-function buildShipmentsOfMaxSize(packages, targetShipmentSize = packages.length) {
+function createMaximumCapacityShipments(packages, targetShipmentSize = packages.length) {
 	const maxVehicleCapacity = vehicleService.config.maxWeight;
 	// Sort packages by weight in ascending order for efficient packing
 	const weightSortedPackages = [...packages].sort((a, b) => a.weight - b.weight);
@@ -80,7 +82,7 @@ function buildShipmentsOfMaxSize(packages, targetShipmentSize = packages.length)
 
 	// If no valid shipments found with current size, try with smaller size
 	if (possibleShipments.length === 0 && targetShipmentSize > 1) {
-		return buildShipmentsOfMaxSize(packages, targetShipmentSize - 1);
+		return createMaximumCapacityShipments(packages, targetShipmentSize - 1);
 	}
 
 	return possibleShipments;
@@ -98,7 +100,7 @@ function selectHeaviestShipments(shipments) {
 	return heaviestShipments;
 }
 
-function selectFastestShipment(shipments) {
+function selectShipmentWithMinDeliveryTime(shipments) {
 	let fastestShipment = shipments[0];
 	for (let i = 1; i < shipments.length; i++) {
 		if (shipments[i].deliveryTime < fastestShipment.deliveryTime) {
@@ -131,4 +133,4 @@ function estimateDeliveredAt(shipment, currentTime) {
 
 // [50, 75, 175, 110, 155];
 
-export { buildShipment, estimateDeliveredAt };
+export { createOptimalShipment, estimateDeliveredAt };

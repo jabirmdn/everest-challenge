@@ -31,9 +31,7 @@ rl.on('line', (line) => {
 
 			// Log output
 			results.forEach((result) => {
-				console.log(
-					`${result.id} ${result.discount} ${result.totalCost} ${result.deliveredAt} ${result.deliveryTime}`
-				);
+				console.log(`${result.id} ${result.discount} ${result.totalCost} ${result.deliveredAt}`);
 			});
 			rl.close();
 		}

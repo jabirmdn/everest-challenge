@@ -40,12 +40,12 @@ function calculateDeliveryTime(currentTime = 0) {
 	}
 
 	// Build a shipment based on the rules
-	const shipment = shipmentService.buildShipment(packagesRemaining);
+	const shipment = shipmentService.createOptimalShipment(packagesRemaining);
 	if (!shipment) {
 		return `The following packages were not delivered: ${JSON.stringify(packagesRemaining)}`;
 	}
 	shipmentService.estimateDeliveredAt(shipment, currentTime);
-	vehicleService.startDelivery(shipment, currentTime);
+	vehicleService.allocateShipment(shipment, currentTime);
 	return calculateDeliveryTime(currentTime);
 }
 
