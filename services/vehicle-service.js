@@ -10,7 +10,8 @@ function init(count, speed, weight) {
 	config.numberOfVehicles = count;
 	config.maxSpeed = speed;
 	config.maxWeight = weight;
-	Object.freeze(config);
+	// Object.freeze(config);
+	vehicles.length = 0;
 	for (let i = 0; i < count; i++) {
 		vehicles.push({
 			id: i,
@@ -21,11 +22,20 @@ function init(count, speed, weight) {
 	}
 }
 
-function allocateShipment(shipment, currentTime) {
+function allocateShipment(shipment, currentTime = 0) {
+	if (shipment.weight > config.maxWeight) {
+		throw new Error('Shipment weight exceeds vehicle capacity');
+	}
+
 	const vehicle = getNextAvailableVehicle();
+	if (!vehicle) {
+		throw new Error('No vehicles available');
+	}
+
 	vehicle.outForDelivery = true;
 	vehicle.shipment = shipment;
 	vehicle.returningIn = currentTime + shipment.deliveryTime;
+	return vehicle;
 }
 
 function getNextAvailableVehicle() {
@@ -53,9 +63,22 @@ function waitForNextAvailability() {
 		if (vehicle.returningIn === nextAvailableTime) {
 			vehicle.returningIn = 0;
 			vehicle.outForDelivery = false;
+			vehicle.shipment = null;
 		}
 	});
 	return nextAvailableTime;
 }
 
-export { config, init, hasAvailableVehicles, waitForNextAvailability, allocateShipment };
+function getVehicles() {
+	return vehicles;
+}
+
+export {
+	config,
+	init,
+	hasAvailableVehicles,
+	waitForNextAvailability,
+	allocateShipment,
+	getVehicles,
+	getNextAvailableVehicle
+};

@@ -8,6 +8,14 @@ function addPackage(pkg) {
 	packages.push(pkg);
 }
 
+function clearPackages() {
+	packages.length = 0;
+}
+
+function getPackages() {
+	return packages;
+}
+
 function estimateDeliveryCostAndDiscounts(baseDeliveryCost, log = false) {
 	packages.forEach((pkg) => {
 		const deliveryCost = calculateDeliveryCost(pkg, baseDeliveryCost);
@@ -102,4 +110,4 @@ function logDeliveryCostEstimation(pkg) {
 	console.log(`${pkg.id} ${pkg.discount} ${pkg.totalCost}`);
 }
 
-export { addPackage, estimateDeliveryCostAndDiscounts, estimateDeliveryTime };
+export { addPackage, estimateDeliveryCostAndDiscounts, estimateDeliveryTime, clearPackages, getPackages };

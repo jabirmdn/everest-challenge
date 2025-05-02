@@ -3,9 +3,15 @@
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",
+
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {} 
+  },
   "scripts": {
     "time-estimate":"node entry-points/time-estimate.js",
-    "cost-estimate":"node entry-points/cost-estimate.js"
+    "cost-estimate":"node entry-points/cost-estimate.js",
+    "test": "npx --node-options=--experimental-vm-modules jest"
   },
   "keywords": [],
   "author": "",
