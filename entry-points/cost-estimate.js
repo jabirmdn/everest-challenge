@@ -14,11 +14,13 @@ let lineCount = 0;
 
 rl.on('line', (line) => {
 	if (lineCount === 0) {
+		// Parse base delivery cost and number of packages
 		const [cost, count] = line.trim().split(' ').map(Number);
 		baseDeliveryCost = cost;
 		numberOfPackages = count;
 		lineCount++;
 	} else {
+		// Parse package lines: pkg_id pkg_weight_in_kg distance_in_km offer_code
 		const [id, weight, distance, offerCode] = line.trim().split(' ');
 
 		packageService.addPackage({
@@ -32,11 +34,7 @@ rl.on('line', (line) => {
 
 		// If all packages are read, calculate delivery cost and log results
 		if (packagesRead === numberOfPackages) {
-			const results = packageService.calculateDeliveryCost(baseDeliveryCost);
-			results.forEach((result) => {
-				console.log(`${result.id} ${result.discount} ${result.totalCost}`);
-			});
-
+			packageService.estimateDeliveryCostAndDiscounts(baseDeliveryCost, true);
 			rl.close();
 		}
 	}

@@ -15,24 +15,25 @@ let lineCount = 0;
 
 rl.on('line', (line) => {
 	if (lineCount === 0) {
+		// Parse base delivery cost and number of packages
 		const [cost, count] = line.trim().split(' ').map(Number);
 		baseDeliveryCost = cost;
 		numberOfPackages = count;
 		lineCount++;
 	} else {
 		if (packagesRead === numberOfPackages) {
-			const results = packageService.calculateDeliveryCost(baseDeliveryCost);
+			// Calculate discount and delivery cost
+			packageService.estimateDeliveryCostAndDiscounts(baseDeliveryCost);
+
+			// Parse vehicle configurations: count speed_in_kmph max_weight_in_kg
 			const [count, speed, weight] = line.trim().split(' ').map(Number);
 
 			// Initialize vehicles
 			vehicleService.init(count, speed, weight);
 
-			packageService.calculateDeliveryTime();
+			// Calculate and log delivery time, discount and total cost
+			packageService.estimateDeliveryTime();
 
-			// Log output
-			results.forEach((result) => {
-				console.log(`${result.id} ${result.discount} ${result.totalCost} ${result.deliveredAt}`);
-			});
 			rl.close();
 		}
 		// Parse package lines: pkg_id pkg_weight_in_kg distance_in_km offer_code
@@ -52,9 +53,9 @@ rl.on('line', (line) => {
 /** 
 100 5
 PKG1 50 30 OFR001
-PKG2 75 125 OFFR0008
-PKG3 175 100 OFFR003
-PKG4 110 60 OFFR002
+PKG2 75 125 OFR0008
+PKG3 175 100 OFR003
+PKG4 110 60 OFR002
 PKG5 155 95 NA
 2 70 200
 */
