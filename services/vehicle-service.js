@@ -82,8 +82,12 @@ function getVehicles() {
 	return vehicles;
 }
 
+function getConfig(key) {
+	return config[key];
+}
+
 export {
-	config,
+	getConfig,
 	init,
 	hasAvailableVehicles,
 	waitForNextAvailability,

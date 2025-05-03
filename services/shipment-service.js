@@ -44,18 +44,18 @@ function createMaximumCapacityShipments(packages) {
 		return [];
 	}
 
-	const maxVehicleCapacity = vehicleService.config.maxWeight;
+	const maxVehicleCapacity = vehicleService.getConfig('maxWeight');
 	// Sort packages by weight in ascending order for efficient packing
 	const weightSortedPackages = [...packages].sort((a, b) => a.weight - b.weight);
-	
+
 	// Get the maximum number of packages that can fit in a shipment
 	const targetShipmentSize = getTargetShipmentSize(weightSortedPackages, maxVehicleCapacity);
-	
+
 	// If no packages can fit within capacity, return empty array
 	if (targetShipmentSize === 0) {
 		return [];
 	}
-	
+
 	const possibleShipments = [];
 
 	/**
@@ -182,7 +182,7 @@ function setDeliveryTimeForShipment(shipment) {
 }
 
 function setDeliveryTimeForPackage(pkg) {
-	pkg.deliveryTime = pkg.distance / vehicleService.config.maxSpeed;
+	pkg.deliveryTime = pkg.distance / vehicleService.getConfig('maxSpeed');
 }
 
 function estimateDeliveryAt(shipment, currentTime) {
