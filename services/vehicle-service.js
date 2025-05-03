@@ -7,6 +7,15 @@ const config = {
 let vehicles = [];
 
 function init(count, speed, weight) {
+	if (count <= 0) {
+		throw new Error('Count must be greater than 0');
+	}
+	if (speed <= 0) {
+		throw new Error('Speed must be greater than 0');
+	}
+	if (weight <= 0) {
+		throw new Error('Weight must be greater than 0');
+	}
 	config.numberOfVehicles = count;
 	config.maxSpeed = speed;
 	config.maxWeight = weight;

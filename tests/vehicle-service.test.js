@@ -1,6 +1,19 @@
 import * as vehicleService from '../services/vehicle-service.js';
 
 describe('Vehicle Service Tests', () => {
+	test('should handle zero and negative speed vehicle (edge case)', () => {
+		expect(() => vehicleService.init(1, 0, 200)).toThrow('Speed must be greater than 0');
+		expect(() => vehicleService.init(1, -1, 200)).toThrow('Speed must be greater than 0');
+	});
+	test('should handle zero and negative weight vehicle (edge case)', () => {
+		expect(() => vehicleService.init(1, 70, 0)).toThrow('Weight must be greater than 0');
+		expect(() => vehicleService.init(1, 70, -1)).toThrow('Weight must be greater than 0');
+	});
+	test('should handle zero and negative vehicle count (edge case)', () => {
+		expect(() => vehicleService.init(0, 70, 200)).toThrow('Count must be greater than 0');
+		expect(() => vehicleService.init(-1, 70, 200)).toThrow('Count must be greater than 0');
+	});
+	
 	beforeEach(() => {
 		// Re-initialize with default values
 		vehicleService.init(2, 70, 200);

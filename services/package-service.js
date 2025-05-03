@@ -57,47 +57,75 @@ function estimateDeliveryTime(currentTime = 0) {
 
 	// No packages remaining to be estimated
 	if (packagesRemaining.length === 0) {
-		packages.forEach(logDeliveryTimeEstimation);
+		handleEstimationCompleted();
 		return;
 	}
 
 	// if all vehicles are out for delivery, wait for atleast one to return
 	if (!vehicleService.hasAvailableVehicles()) {
-		const nextAvailableTime = vehicleService.waitForNextAvailability();
-		estimateDeliveryTime(nextAvailableTime);
+		handleNoVehicleAvailability();
 		return;
 	}
 
 	// Build a shipment based on the rules
 	const shipment = shipmentService.createOptimalShipment(packagesRemaining);
 
-	// No valid shipment could be created
 	if (!shipment) {
-		getDeliveredPackages().forEach(logDeliveryTimeEstimation);
-		packagesRemaining.forEach(logDeliveryTimeEstimationFailed);
+		handleNoValidShipments(packagesRemaining);
 		return;
 	}
 
 	// Estimate delivery time for the shipment
-	shipmentService.estimateDeliveredAt(shipment, currentTime);
+	shipmentService.estimateDeliveryAt(shipment, currentTime);
 
 	// Find available vehicle and allocate shipment
-	vehicleService.allocateShipment(shipment, currentTime);
+	const allocated = handleShipmentAllocation(shipment, currentTime);
 
 	// Recursively calculate delivery time for the remaining packages
-	estimateDeliveryTime(currentTime);
+	if (allocated) {
+		estimateDeliveryTime(currentTime);
+	}
+}
+
+function handleEstimationCompleted() {
+	packages.forEach(logDeliveryTimeEstimation);
+}
+
+function handleShipmentAllocation(shipment, currentTime) {
+	try {
+		vehicleService.allocateShipment(shipment, currentTime);
+		return true;
+	} catch (error) {
+		console.error(`Error allocating shipment: ${error.message}`);
+		// Mark packages in this shipment as failed
+		shipment.packages.forEach((pkg) => {
+			delete pkg.deliveryAt; // Remove any partial delivery time calculation
+			logDeliveryTimeEstimationFailed(pkg);
+		});
+		return false;
+	}
+}
+
+function handleNoValidShipments(packagesRemaining) {
+	getEstimatedPackages().forEach(logDeliveryTimeEstimation);
+	packagesRemaining.forEach(logDeliveryTimeEstimationFailed);
+}
+
+function handleNoVehicleAvailability() {
+	const nextAvailableTime = vehicleService.waitForNextAvailability();
+	estimateDeliveryTime(nextAvailableTime);
 }
 
 function getRemainingPackages() {
-	return packages.filter((pkg) => !pkg.deliveredAt);
+	return packages.filter((pkg) => !pkg.deliveryAt);
 }
 
-function getDeliveredPackages() {
-	return packages.filter((pkg) => pkg.deliveredAt);
+function getEstimatedPackages() {
+	return packages.filter((pkg) => pkg.deliveryAt);
 }
 
 function logDeliveryTimeEstimation(pkg) {
-	console.log(`${pkg.id} ${pkg.discount} ${pkg.totalCost} ${pkg.deliveredAt}`);
+	console.log(`${pkg.id} ${pkg.discount} ${pkg.totalCost} ${pkg.deliveryAt}`);
 }
 
 function logDeliveryTimeEstimationFailed(pkg) {
@@ -110,4 +138,11 @@ function logDeliveryCostEstimation(pkg) {
 	console.log(`${pkg.id} ${pkg.discount} ${pkg.totalCost}`);
 }
 
-export { addPackage, estimateDeliveryCostAndDiscounts, estimateDeliveryTime, clearPackages, getPackages };
+export {
+	addPackage,
+	estimateDeliveryCostAndDiscounts,
+	estimateDeliveryTime,
+	clearPackages,
+	getPackages,
+	getEstimatedPackages
+};

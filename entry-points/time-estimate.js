@@ -49,13 +49,3 @@ rl.on('line', (line) => {
 		packagesRead++;
 	}
 });
-
-/** 
-100 5
-PKG1 50 30
-PKG2 75 125
-PKG3 175 100
-PKG4 110 60
-PKG5 155 95
-2 70 200
-*/
