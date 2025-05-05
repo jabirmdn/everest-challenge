@@ -40,7 +40,6 @@ function allocateShipment(shipment, currentTime = 0) {
 	if (!vehicle) {
 		throw new Error('No vehicles available');
 	}
-
 	vehicle.outForDelivery = true;
 	vehicle.shipment = shipment;
 	vehicle.returningIn = currentTime + shipment.deliveryTime;

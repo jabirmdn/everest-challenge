@@ -64,6 +64,7 @@ function handleVehicleConfigInput(line) {
 	vehicleService.init(vehicleConfig.count, vehicleConfig.speed, vehicleConfig.weight);
 
 	// Calculate and log delivery time, discount and total cost
+	packageService.setDeliveryTimeForPackages();
 	packageService.estimateDeliveryTime();
 }
 

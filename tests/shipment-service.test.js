@@ -61,10 +61,10 @@ describe('Shipment Service Tests', () => {
 			vehicleService.init(2, 10, 100); // Speed 10 km/h for easy calculation
 
 			const packages = [
-				{ id: 'PKG1', weight: 50, distance: 50 }, // 5 hours one-way
-				{ id: 'PKG2', weight: 50, distance: 20 }, // 2 hours one-way
-				{ id: 'PKG3', weight: 50, distance: 30 }, // 3 hours one-way
-				{ id: 'PKG4', weight: 50, distance: 10 } // 1 hour one-way
+				{ id: 'PKG1', weight: 50, distance: 50, deliveryTime: 5 }, // 5 hours one-way
+				{ id: 'PKG2', weight: 50, distance: 20, deliveryTime: 2 }, // 2 hours one-way
+				{ id: 'PKG3', weight: 50, distance: 30, deliveryTime: 3 }, // 3 hours one-way
+				{ id: 'PKG4', weight: 50, distance: 10, deliveryTime: 1 } // 1 hour one-way
 			];
 
 			// With 100kg capacity, we can create several shipments with 2 packages each (all 100kg)
@@ -85,9 +85,9 @@ describe('Shipment Service Tests', () => {
 			vehicleService.init(2, 10, 200); // Speed 10 km/h for easy calculation
 
 			const packages = [
-				{ id: 'PKG1', weight: 50, distance: 100 }, // 10 hours one-way
-				{ id: 'PKG2', weight: 50, distance: 50 }, // 5 hours one-way
-				{ id: 'PKG3', weight: 50, distance: 20 } // 2 hours one-way
+				{ id: 'PKG1', weight: 50, distance: 100, deliveryTime: 10 }, // 10 hours one-way
+				{ id: 'PKG2', weight: 50, distance: 50, deliveryTime: 5 }, // 5 hours one-way
+				{ id: 'PKG3', weight: 50, distance: 20, deliveryTime: 2 } // 2 hours one-way
 			];
 
 			const result = shipmentService.createOptimalShipment(packages);
@@ -120,11 +120,12 @@ describe('Shipment Service Tests', () => {
 
 			// Create a large array of packages with varying weights and distances
 			const packages = [];
-			for (let i = 1; i <= 20; i++) {
+			for (let i = 1; i <= 1000; i++) {
 				packages.push({
 					id: `PKG${i}`,
 					weight: 20 + (i % 5) * 5, // Weights between 20-40kg
-					distance: 10 + i * 5 // Distances between 15-110km
+					distance: 10 + i * 5, // Distances between 15-110km
+					deliveryTime: 10 + i * 2 // Delivery times between 10-40 hours
 				});
 			}
 

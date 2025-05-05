@@ -11,7 +11,7 @@
   "scripts": {
     "time-estimate":"node index.js time",
     "cost-estimate":"node index.js cost",
-    "test": "npx --node-options=--experimental-vm-modules jest --silent"
+    "test": "npx --node-options=--experimental-vm-modules jest"
   },
   "keywords": [],
   "author": "",

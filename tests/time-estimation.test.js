@@ -14,6 +14,7 @@ describe('Time Estimation Tests', () => {
 		packageService.addPackage({ id: 'PKG3', weight: 175, distance: 100, offerCode: 'OFR003' });
 		packageService.addPackage({ id: 'PKG4', weight: 110, distance: 60, offerCode: 'OFR002' });
 		packageService.addPackage({ id: 'PKG5', weight: 155, distance: 95, offerCode: 'NA' });
+		packageService.setDeliveryTimeForPackages();
 		packageService.estimateDeliveryTime();
 		const estimatedPackages = packageService.getEstimatedPackages();
 		estimatedPackages.forEach((pkg) => {
@@ -30,6 +31,7 @@ describe('Time Estimation Tests', () => {
 	test('should handle no packages scenario', () => {
 		vehicleService.init(2, 70, 200);
 
+		packageService.setDeliveryTimeForPackages();
 		packageService.estimateDeliveryTime();
 
 		const estimatedPackages = packageService.getEstimatedPackages();
@@ -39,6 +41,7 @@ describe('Time Estimation Tests', () => {
 	test('should handle single package delivery', () => {
 		vehicleService.init(1, 70, 200);
 		packageService.addPackage({ id: 'PKG1', weight: 50, distance: 70, offerCode: 'OFR001' });
+		packageService.setDeliveryTimeForPackages();
 
 		packageService.estimateDeliveryTime();
 
@@ -52,11 +55,13 @@ describe('Time Estimation Tests', () => {
 		packageService.addPackage({ id: 'PKG1', weight: 60, distance: 30, offerCode: 'OFR001' }); // Too heavy
 		packageService.addPackage({ id: 'PKG2', weight: 40, distance: 40, offerCode: 'OFR002' }); // Can be delivered
 
+		packageService.setDeliveryTimeForPackages();
 		packageService.estimateDeliveryTime();
 
 		const estimatedPackages = packageService.getEstimatedPackages();
 		expect(estimatedPackages.length).toBe(1);
 		expect(estimatedPackages[0].id).toBe('PKG2');
+		expect(estimatedPackages[0].deliveryAt).toBe(0.57);
 	});
 
 	test('should handle multiple vehicles with varying delivery times', () => {
@@ -66,6 +71,7 @@ describe('Time Estimation Tests', () => {
 		packageService.addPackage({ id: 'PKG2', weight: 50, distance: 140, offerCode: 'OFR002' });
 		packageService.addPackage({ id: 'PKG3', weight: 50, distance: 210, offerCode: 'OFR003' });
 
+		packageService.setDeliveryTimeForPackages();
 		packageService.estimateDeliveryTime();
 
 		const estimatedPackages = packageService.getEstimatedPackages();
@@ -85,6 +91,7 @@ describe('Time Estimation Tests', () => {
 		packageService.addPackage({ id: 'PKG1', weight: 50, distance: 100, offerCode: 'OFR001' });
 		packageService.addPackage({ id: 'PKG2', weight: 50, distance: 50, offerCode: 'OFR002' }); // Shorter distance
 
+		packageService.setDeliveryTimeForPackages();
 		packageService.estimateDeliveryTime();
 
 		const estimatedPackages = packageService.getEstimatedPackages();
@@ -102,6 +109,7 @@ describe('Time Estimation Tests', () => {
 		packageService.addPackage({ id: 'PKG3', weight: 50, distance: 90, offerCode: 'OFR003' });
 		packageService.addPackage({ id: 'PKG4', weight: 60, distance: 110, offerCode: 'OFR004' });
 
+		packageService.setDeliveryTimeForPackages();
 		packageService.estimateDeliveryTime();
 
 		const estimatedPackages = packageService.getEstimatedPackages();
@@ -116,6 +124,7 @@ describe('Time Estimation Tests', () => {
 		vehicleService.init(1, 70, 200);
 		packageService.addPackage({ id: 'PKG1', weight: 50, distance: 700, offerCode: 'OFR001' }); // 10 hours delivery time
 
+		packageService.setDeliveryTimeForPackages();
 		packageService.estimateDeliveryTime();
 
 		const estimatedPackages = packageService.getEstimatedPackages();
@@ -128,6 +137,7 @@ describe('Time Estimation Tests', () => {
 		packageService.addPackage({ id: 'PKG1', weight: 100, distance: 70, offerCode: 'OFR001' }); // 1 hour delivery time
 		packageService.addPackage({ id: 'PKG2', weight: 50, distance: 70, offerCode: 'OFR002' }); // 1 hour delivery time
 
+		packageService.setDeliveryTimeForPackages();
 		packageService.estimateDeliveryTime();
 
 		const estimatedPackages = packageService.getEstimatedPackages();
@@ -143,7 +153,7 @@ describe('Time Estimation Tests', () => {
 		vehicleService.init(1, 70, 100); // 1 vehicle with exactly 100kg capacity
 		packageService.addPackage({ id: 'PKG1', weight: 100, distance: 70, offerCode: 'OFR001' }); // Exactly matches capacity
 		packageService.addPackage({ id: 'PKG2', weight: 50, distance: 70, offerCode: 'OFR002' }); // For second trip
-
+		packageService.setDeliveryTimeForPackages();
 		packageService.estimateDeliveryTime();
 
 		const estimatedPackages = packageService.getEstimatedPackages();
@@ -165,6 +175,7 @@ describe('Time Estimation Tests', () => {
 		packageService.addPackage({ id: 'PKG4', weight: 100, distance: 400, offerCode: 'OFR004' }); // 4 hours delivery
 		packageService.addPackage({ id: 'PKG5', weight: 50, distance: 500, offerCode: 'OFR005' }); // 5 hours delivery
 
+		packageService.setDeliveryTimeForPackages();
 		packageService.estimateDeliveryTime();
 
 		const estimatedPackages = packageService.getEstimatedPackages();
@@ -186,6 +197,7 @@ describe('Time Estimation Tests', () => {
 		packageService.addPackage({ id: 'PKG1', weight: 200, distance: 30, offerCode: 'OFR001' }); // Too heavy
 		packageService.addPackage({ id: 'PKG2', weight: 420, distance: 40, offerCode: 'OFR002' }); // Can be delivered
 
+		packageService.setDeliveryTimeForPackages();
 		packageService.estimateDeliveryTime();
 
 		const estimatedPackages = packageService.getEstimatedPackages();

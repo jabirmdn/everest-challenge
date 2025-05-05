@@ -69,7 +69,6 @@ function estimateDeliveryTime(currentTime = 0) {
 
 	// Build a shipment based on the rules
 	const shipment = shipmentService.createOptimalShipment(packagesRemaining);
-
 	if (!shipment) {
 		handleNoValidShipments(packagesRemaining);
 		return;
@@ -138,11 +137,44 @@ function logDeliveryCostEstimation(pkg) {
 	console.log(`${pkg.id} ${pkg.discount} ${pkg.totalCost}`);
 }
 
+function setDeliveryTimeForPackages() {
+	packages.forEach((pkg) => {
+		pkg.deliveryTime = pkg.distance / vehicleService.getConfig('maxSpeed');
+	});
+}
+
 export {
 	addPackage,
 	estimateDeliveryCostAndDiscounts,
 	estimateDeliveryTime,
 	clearPackages,
 	getPackages,
-	getEstimatedPackages
+	getEstimatedPackages,
+	setDeliveryTimeForPackages
 };
+
+/** 
+100 5
+PKG1 50 30 OFR001
+PKG2 75 125 OFFR0008
+PKG3 175 100 OFFR003
+PKG4 110 60 OFFR002
+PKG5 155 95 NA
+2 70 200
+*/
+
+/** 
+100 2
+PKG1 60 30 OFR001
+PKG2 40 40 OFR002
+1 70 50
+*/
+
+/**
+100 4
+PKG1 50 50 NA
+PKG2 50 20 NA
+PKG3 50 30 NA
+PKG4 50 10 NA
+2 10 100
+*/
