@@ -19,6 +19,10 @@ const offers = [
 	}
 ];
 
+function addOffer(offer) {
+	offers.push(offer);
+}
+
 function getOffer(code) {
 	return offers.find((offer) => offer.code === code);
 }
@@ -35,4 +39,4 @@ function isApplicable(offer, pkg) {
 	return isInRange(offer.distance, pkg.distance) && isInRange(offer.weight, pkg.weight);
 }
 
-export { getOffer, isApplicable };
+export { getOffer, isApplicable, addOffer };

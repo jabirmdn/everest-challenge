@@ -87,3 +87,5 @@ src/.DS_Store
 .vscode/settings.json
 
 .clinic/
+
+coverage

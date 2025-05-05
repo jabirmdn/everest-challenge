@@ -9,7 +9,6 @@ function processInput(line, fn) {
 
 function handleVehicleInput(line) {
 	const parts = line.trim().split(' ');
-
 	// Validate input format
 	if (parts.length !== 3) {
 		throw new Error(
