@@ -58,6 +58,8 @@ function createMaximumCapacityShipments(packages) {
 
 	const possibleShipments = [];
 
+	const cache = {};
+
 	/**
 	 * Recursively find all valid shipment combinations using backtracking
 	 * @param {Array} candidatePackages - Current packages being considered for the shipment
@@ -86,8 +88,12 @@ function createMaximumCapacityShipments(packages) {
 
 			// Add package to shipment and continue recursion
 			candidatePackages.push(packageToAdd);
-			findValidShipments(candidatePackages, i + 1, newTotalWeight);
-
+			const cacheKey = `${candidatePackages.map((pkg) => pkg.id).join('-')}-${i + 1}-${newTotalWeight}`;
+			console.log(cacheKey);
+			if (!cache[cacheKey]) {
+				cache[cacheKey] = true;
+				findValidShipments(candidatePackages, i + 1, newTotalWeight);
+			}
 			// Backtrack: remove the package to try other combinations
 			candidatePackages.pop();
 		}
@@ -195,10 +201,12 @@ function estimateDeliveryAt(shipment, currentTime) {
 
 export { createOptimalShipment, estimateDeliveryAt };
 
-// 100 5
-// PKG1 50 30 OFR001
-// PKG2 75 125 OFFR0008
-// PKG3 175 100 OFFR003
-// PKG4 110 60 OFFR002
-// PKG5 155 95 NA
-// 2 70 200
+/** 
+100 5
+PKG1 50 30 OFR001
+PKG2 75 125 OFFR0008
+PKG3 175 100 OFFR003
+PKG4 110 60 OFFR002
+PKG5 155 95 NA
+2 70 200
+*/

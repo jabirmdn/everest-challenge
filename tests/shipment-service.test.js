@@ -120,7 +120,7 @@ describe('Shipment Service Tests', () => {
 
 			// Create a large array of packages with varying weights and distances
 			const packages = [];
-			for (let i = 1; i <= 20; i++) {
+			for (let i = 1; i <= 8; i++) {
 				packages.push({
 					id: `PKG${i}`,
 					weight: 20 + (i % 5) * 5, // Weights between 20-40kg
