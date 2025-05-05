@@ -1,13 +1,13 @@
 import { jest } from '@jest/globals';
 import {
-  processInput,
-  handlePackageConfigInput,
-  handlePackageInput,
-  handleVehicleInput
+  validateInput,
+  packageConfigInputValidator,
+  packageInputValidator,
+  vehicleConfigInputValidator
 } from '../utils/input-validator.js';
 
 describe('Input Validator', () => {
-  // Mock console.error and process.exit for processInput tests
+  // Mock console.error and process.exit for validateInput tests
   let consoleErrorSpy;
   let processExitSpy;
 
@@ -21,10 +21,10 @@ describe('Input Validator', () => {
     processExitSpy.mockRestore();
   });
 
-  describe('processInput', () => {
+  describe('validateInput', () => {
     test('should process valid input correctly', () => {
       const mockFn = jest.fn(line => `Processed: ${line}`);
-      const result = processInput('test input', mockFn);
+      const result = validateInput('test input', mockFn);
       
       expect(mockFn).toHaveBeenCalledWith('test input');
       expect(result).toBe('Processed: test input');
@@ -37,7 +37,7 @@ describe('Input Validator', () => {
         throw new Error('Test error');
       });
       
-      processInput('test input', mockFn);
+      validateInput('test input', mockFn);
       
       expect(mockFn).toHaveBeenCalledWith('test input');
       expect(consoleErrorSpy).toHaveBeenCalledWith('Test error');
@@ -45,9 +45,9 @@ describe('Input Validator', () => {
     });
   });
 
-  describe('handlePackageConfigInput', () => {
+  describe('packageConfigInputValidator', () => {
     test('should parse valid package config correctly', () => {
-      const result = handlePackageConfigInput('100 5');
+      const result = packageConfigInputValidator('100 5');
       
       expect(result).toEqual({
         baseDeliveryCost: 100,
@@ -56,7 +56,7 @@ describe('Input Validator', () => {
     });
 
     test('should handle decimal base delivery cost', () => {
-      const result = handlePackageConfigInput('100.5 5');
+      const result = packageConfigInputValidator('100.5 5');
       
       expect(result).toEqual({
         baseDeliveryCost: 100.5,
@@ -65,43 +65,43 @@ describe('Input Validator', () => {
     });
 
     test('should throw error for incorrect format', () => {
-      expect(() => handlePackageConfigInput('100')).toThrow(
+      expect(() => packageConfigInputValidator('100')).toThrow(
         'Error: First line should contain base delivery cost and number of packages separated by space'
       );
 
-      expect(() => handlePackageConfigInput('100 5 extra')).toThrow(
+      expect(() => packageConfigInputValidator('100 5 extra')).toThrow(
         'Error: First line should contain base delivery cost and number of packages separated by space'
       );
     });
 
     test('should throw error for non-numeric values', () => {
-      expect(() => handlePackageConfigInput('abc 5')).toThrow(
+      expect(() => packageConfigInputValidator('abc 5')).toThrow(
         'Error: Base delivery cost and number of packages must be valid numbers'
       );
 
-      expect(() => handlePackageConfigInput('100 xyz')).toThrow(
+      expect(() => packageConfigInputValidator('100 xyz')).toThrow(
         'Error: Base delivery cost and number of packages must be valid numbers'
       );
     });
 
     test('should throw error for negative values', () => {
-      expect(() => handlePackageConfigInput('-100 5')).toThrow(
+      expect(() => packageConfigInputValidator('-100 5')).toThrow(
         'Error: Base delivery cost and number of packages cannot be negative'
       );
 
-      expect(() => handlePackageConfigInput('100 -5')).toThrow(
+      expect(() => packageConfigInputValidator('100 -5')).toThrow(
         'Error: Base delivery cost and number of packages cannot be negative'
       );
     });
 
     test('should throw error for non-integer package count', () => {
-      expect(() => handlePackageConfigInput('100 5.5')).toThrow(
+      expect(() => packageConfigInputValidator('100 5.5')).toThrow(
         'Error: Number of packages must be an integer'
       );
     });
 
     test('should allow zero values', () => {
-      const result = handlePackageConfigInput('0 0');
+      const result = packageConfigInputValidator('0 0');
       
       expect(result).toEqual({
         baseDeliveryCost: 0,
@@ -110,9 +110,9 @@ describe('Input Validator', () => {
     });
   });
 
-  describe('handlePackageInput', () => {
+  describe('packageInputValidator', () => {
     test('should parse valid package input correctly', () => {
-      const result = handlePackageInput('PKG1 5 5 OFR001');
+      const result = packageInputValidator('PKG1 5 5 OFR001');
       
       expect(result).toEqual({
         id: 'PKG1',
@@ -123,7 +123,7 @@ describe('Input Validator', () => {
     });
 
     test('should handle decimal weight and distance', () => {
-      const result = handlePackageInput('PKG1 5.5 10.5 OFR001');
+      const result = packageInputValidator('PKG1 5.5 10.5 OFR001');
       
       expect(result).toEqual({
         id: 'PKG1',
@@ -134,7 +134,7 @@ describe('Input Validator', () => {
     });
 
     test('should handle NA offer code', () => {
-      const result = handlePackageInput('PKG1 5 5 NA');
+      const result = packageInputValidator('PKG1 5 5 NA');
       
       expect(result).toEqual({
         id: 'PKG1',
@@ -145,47 +145,47 @@ describe('Input Validator', () => {
     });
 
     test('should throw error for incorrect format', () => {
-      expect(() => handlePackageInput('PKG1 5 5')).toThrow(
+      expect(() => packageInputValidator('PKG1 5 5')).toThrow(
         'Error: Package information should contain ID, weight, distance, and offer code separated by spaces'
       );
 
-      expect(() => handlePackageInput('PKG1 5 5 OFR001 extra')).toThrow(
+      expect(() => packageInputValidator('PKG1 5 5 OFR001 extra')).toThrow(
         'Error: Package information should contain ID, weight, distance, and offer code separated by spaces'
       );
     });
 
     test('should throw error for non-numeric weight or distance', () => {
-      expect(() => handlePackageInput('PKG1 abc 5 OFR001')).toThrow(
+      expect(() => packageInputValidator('PKG1 abc 5 OFR001')).toThrow(
         'Error: Package weight and distance must be valid numbers'
       );
 
-      expect(() => handlePackageInput('PKG1 5 xyz OFR001')).toThrow(
+      expect(() => packageInputValidator('PKG1 5 xyz OFR001')).toThrow(
         'Error: Package weight and distance must be valid numbers'
       );
     });
 
     test('should throw error for non-positive weight or distance', () => {
-      expect(() => handlePackageInput('PKG1 0 5 OFR001')).toThrow(
+      expect(() => packageInputValidator('PKG1 0 5 OFR001')).toThrow(
         'Error: Package weight and distance must be positive'
       );
 
-      expect(() => handlePackageInput('PKG1 5 0 OFR001')).toThrow(
+      expect(() => packageInputValidator('PKG1 5 0 OFR001')).toThrow(
         'Error: Package weight and distance must be positive'
       );
 
-      expect(() => handlePackageInput('PKG1 -5 5 OFR001')).toThrow(
+      expect(() => packageInputValidator('PKG1 -5 5 OFR001')).toThrow(
         'Error: Package weight and distance must be positive'
       );
 
-      expect(() => handlePackageInput('PKG1 5 -5 OFR001')).toThrow(
+      expect(() => packageInputValidator('PKG1 5 -5 OFR001')).toThrow(
         'Error: Package weight and distance must be positive'
       );
     });
   });
 
-  describe('handleVehicleInput', () => {
+  describe('vehicleConfigInputValidator', () => {
     test('should parse valid vehicle input correctly', () => {
-      const result = handleVehicleInput('2 70 200');
+      const result = vehicleConfigInputValidator('2 70 200');
       
       expect(result).toEqual({
         count: 2,
@@ -195,7 +195,7 @@ describe('Input Validator', () => {
     });
 
     test('should handle decimal speed and weight', () => {
-      const result = handleVehicleInput('2 70.5 200.5');
+      const result = vehicleConfigInputValidator('2 70.5 200.5');
       
       expect(result).toEqual({
         count: 2,
@@ -205,55 +205,55 @@ describe('Input Validator', () => {
     });
 
     test('should throw error for incorrect format', () => {
-      expect(() => handleVehicleInput('2 70')).toThrow(
+      expect(() => vehicleConfigInputValidator('2 70')).toThrow(
         'Error: Vehicle configuration should contain count, speed, and max weight separated by spaces'
       );
 
-      expect(() => handleVehicleInput('2 70 200 extra')).toThrow(
+      expect(() => vehicleConfigInputValidator('2 70 200 extra')).toThrow(
         'Error: Vehicle configuration should contain count, speed, and max weight separated by spaces'
       );
     });
 
     test('should throw error for non-numeric values', () => {
-      expect(() => handleVehicleInput('abc 70 200')).toThrow(
+      expect(() => vehicleConfigInputValidator('abc 70 200')).toThrow(
         'Error: Vehicle count, speed, and max weight must be valid numbers'
       );
 
-      expect(() => handleVehicleInput('2 abc 200')).toThrow(
+      expect(() => vehicleConfigInputValidator('2 abc 200')).toThrow(
         'Error: Vehicle count, speed, and max weight must be valid numbers'
       );
 
-      expect(() => handleVehicleInput('2 70 abc')).toThrow(
+      expect(() => vehicleConfigInputValidator('2 70 abc')).toThrow(
         'Error: Vehicle count, speed, and max weight must be valid numbers'
       );
     });
 
     test('should throw error for non-positive values', () => {
-      expect(() => handleVehicleInput('0 70 200')).toThrow(
+      expect(() => vehicleConfigInputValidator('0 70 200')).toThrow(
         'Error: Vehicle count, speed, and max weight must be positive'
       );
 
-      expect(() => handleVehicleInput('2 0 200')).toThrow(
+      expect(() => vehicleConfigInputValidator('2 0 200')).toThrow(
         'Error: Vehicle count, speed, and max weight must be positive'
       );
 
-      expect(() => handleVehicleInput('2 70 0')).toThrow(
+      expect(() => vehicleConfigInputValidator('2 70 0')).toThrow(
         'Error: Vehicle count, speed, and max weight must be positive'
       );
 
-      expect(() => handleVehicleInput('-2 70 200')).toThrow(
+      expect(() => vehicleConfigInputValidator('-2 70 200')).toThrow(
         'Error: Vehicle count, speed, and max weight must be positive'
       );
     });
 
     test('should throw error for non-integer count', () => {
-      expect(() => handleVehicleInput('2.5 70 200')).toThrow(
+      expect(() => vehicleConfigInputValidator('2.5 70 200')).toThrow(
         'Error: Vehicle count must be an integer'
       );
     });
 
     test('should handle edge case values', () => {
-      const result = handleVehicleInput('1 1 1');
+      const result = vehicleConfigInputValidator('1 1 1');
       
       expect(result).toEqual({
         count: 1,

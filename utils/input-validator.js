@@ -1,4 +1,4 @@
-function processInput(line, fn) {
+function validateInput(line, fn) {
 	try {
 		return fn(line);
 	} catch (error) {
@@ -7,7 +7,7 @@ function processInput(line, fn) {
 	}
 }
 
-function handleVehicleInput(line) {
+function vehicleConfigInputValidator(line) {
 	const parts = line.trim().split(' ');
 	// Validate input format
 	if (parts.length !== 3) {
@@ -37,7 +37,7 @@ function handleVehicleInput(line) {
 	return { count, speed, weight };
 }
 
-function handlePackageInput(line) {
+function packageInputValidator(line) {
 	// Parse package lines: pkg_id pkg_weight_in_kg distance_in_km offer_code
 	const parts = line.trim().split(' ');
 
@@ -75,7 +75,7 @@ function handlePackageInput(line) {
 	};
 }
 
-function handlePackageConfigInput(line) {
+function packageConfigInputValidator(line) {
 	const parts = line.trim().split(' ');
 
 	// Validate input format
@@ -108,4 +108,4 @@ function handlePackageConfigInput(line) {
 	};
 }
 
-export { processInput, handlePackageConfigInput, handlePackageInput, handleVehicleInput };
+export { validateInput, packageConfigInputValidator, packageInputValidator, vehicleConfigInputValidator };

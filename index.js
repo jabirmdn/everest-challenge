@@ -3,10 +3,10 @@ import * as packageService from './services/package-service.js';
 import * as vehicleService from './services/vehicle-service.js';
 import { loadSampleOffers } from './services/offer-service.js';
 import {
-	processInput,
-	handlePackageConfigInput,
-	handlePackageInput,
-	handleVehicleInput
+	validateInput,
+	packageConfigInputValidator,
+	packageInputValidator,
+	vehicleConfigInputValidator
 } from './utils/input-validator.js';
 
 const rl = readline.createInterface({
@@ -26,30 +26,53 @@ const mode = process.argv[2];
 
 rl.on('line', (line) => {
 	if (lineCount === 0) {
-		// Parse base delivery cost and number of packages
-		const config = processInput(line, handlePackageConfigInput);
-		baseDeliveryCost = config.baseDeliveryCost;
-		numberOfPackages = config.numberOfPackages;
-		lineCount++;
-	} else {
-		if (packagesRead === numberOfPackages && mode === 'time') {
-			// Parse vehicle configurations and initialize vehicle configurations
-			const vehicleConfig = processInput(line, handleVehicleInput);
-			vehicleService.init(vehicleConfig.count, vehicleConfig.speed, vehicleConfig.weight);
+		// First line, reads base delivery cost and number of packages
+		handlePackageConfigInput(line);
+		return;
+	}
+	if (hasReceivedAllPackages() && mode === 'time') {
+		// All packages read, handle vehicle config
+		handleVehicleConfigInput(line);
+		process.exit();
+	}
 
-			// Calculate and log delivery time, discount and total cost
-			packageService.estimateDeliveryTime();
-			process.exit();
-		}
-    
-		const pkg = processInput(line, handlePackageInput);
-		packageService.addPackage(pkg);
-		packagesRead++;
+	// Handle each package input
+	handlePackageInput(line);
 
-		if (packagesRead === numberOfPackages) {
-			// Calculate discount and delivery cost
-			packageService.estimateDeliveryCostAndDiscounts(baseDeliveryCost, mode === 'cost');
+	if (hasReceivedAllPackages()) {
+		// Calculate discount and delivery cost
+		packageService.estimateDeliveryCostAndDiscounts(baseDeliveryCost, mode === 'cost');
+
+		// If cost mode, no need to calculate delivery time
+		if (mode === 'cost') {
 			process.exit();
 		}
 	}
 });
+
+function handlePackageConfigInput(line) {
+	// Parse base delivery cost and number of packages
+	const config = validateInput(line, packageConfigInputValidator);
+	baseDeliveryCost = config.baseDeliveryCost;
+	numberOfPackages = config.numberOfPackages;
+	lineCount++;
+}
+
+function handleVehicleConfigInput(line) {
+	// Parse vehicle configurations and initialize vehicle configurations
+	const vehicleConfig = validateInput(line, vehicleConfigInputValidator);
+	vehicleService.init(vehicleConfig.count, vehicleConfig.speed, vehicleConfig.weight);
+
+	// Calculate and log delivery time, discount and total cost
+	packageService.estimateDeliveryTime();
+}
+
+function handlePackageInput(line) {
+	const pkg = validateInput(line, packageInputValidator);
+	packageService.addPackage(pkg);
+	packagesRead++;
+}
+
+function hasReceivedAllPackages() {
+	return packagesRead === numberOfPackages;
+}
