@@ -16,8 +16,8 @@ import * as vehicleService from './vehicle-service.js';
 
 function createOptimalShipment(packages) {
 	const capacity = vehicleService.getConfig('maxWeight');
-	const dp = Array(capacity + 1).fill(null);
-	dp[0] = {
+	const shipmentTable = Array(capacity + 1).fill(null);
+	shipmentTable[0] = {
 		count: 0,
 		weight: 0,
 		deliveryTime: 0,
@@ -26,7 +26,7 @@ function createOptimalShipment(packages) {
 
 	for (const pkg of packages) {
 		for (let w = capacity - pkg.weight; w >= 0; w--) {
-			const current = dp[w];
+			const current = shipmentTable[w];
 			if (!current) continue;
 
 			const newWeight = w + pkg.weight;
@@ -34,7 +34,7 @@ function createOptimalShipment(packages) {
 			const newDeliveryTime = Math.max(current.deliveryTime, 2 * pkg.deliveryTime);
 			const newPackages = [...current.packages, pkg];
 
-			const existing = dp[newWeight];
+			const existing = shipmentTable[newWeight];
 
 			if (
 				!existing ||
@@ -42,7 +42,7 @@ function createOptimalShipment(packages) {
 				(newCount === existing.count && newWeight > existing.weight) ||
 				(newCount === existing.count && newWeight === existing.weight && newDeliveryTime < existing.deliveryTime)
 			) {
-				dp[newWeight] = {
+				shipmentTable[newWeight] = {
 					count: newCount,
 					weight: newWeight,
 					deliveryTime: newDeliveryTime,
@@ -52,23 +52,23 @@ function createOptimalShipment(packages) {
 		}
 	}
 
-	// Select the best shipment across all possible weights
-	let best = null;
-	for (const entry of dp) {
+	// Select the optimal shipment across all possible weights
+	let optimal = null;
+	for (const entry of shipmentTable) {
 		if (!entry) continue;
 		if (
-			!best ||
-			entry.count > best.count ||
-			(entry.count === best.count && entry.weight > best.weight) ||
-			(entry.count === best.count &&
-				entry.weight === best.weight &&
-				entry.deliveryTime * 2 < best.deliveryTime * 2)
+			!optimal ||
+			entry.count > optimal.count ||
+			(entry.count === optimal.count && entry.weight > optimal.weight) ||
+			(entry.count === optimal.count &&
+				entry.weight === optimal.weight &&
+				entry.deliveryTime * 2 < optimal.deliveryTime * 2)
 		) {
-			best = entry;
+			optimal = entry;
 		}
 	}
 
-	return best && best.count > 0 ? best : null;
+	return optimal && optimal.count > 0 ? optimal : null;
 }
 
 function estimateDeliveryAt(shipment, currentTime) {

@@ -11,16 +11,17 @@ Calculates delivery costs, applies discounts, and estimates delivery times for s
 
 ## Project Structure
 ```
-├── entry-points/           # Application entry points
-│   ├── cost-estimate.js    # Entry point for cost estimation
-│   └── time-estimate.js    # Entry point for time estimation
+├── index.js                # Unified entry point for both cost and time estimation
 ├── services/               # Core business logic
 │   ├── offer-service.js    # Discount offer management
 │   ├── package-service.js  # Package management and cost calculation
 │   ├── shipment-service.js # Shipment creation and optimization
 │   └── vehicle-service.js  # Vehicle configuration and management
+├── utils/                  # Utility functions
+│   └── input-validator.js  # Input validation functions
 └── tests/                  # Test suite
     ├── cost-estimation.test.js
+    ├── input-validator.test.js
     ├── shipment-service.test.js
     ├── time-estimation.test.js
     └── vehicle-service.test.js
@@ -28,12 +29,21 @@ Calculates delivery costs, applies discounts, and estimates delivery times for s
 
 ## Usage
 
-### Cost Estimation
-Calculate delivery costs and applicable discounts for packages:
+The application provides a unified entry point with different modes of operation:
 
 ```bash
+# For cost estimation only
 npm run cost-estimate
+
+# For time estimation
+npm run time-estimate
+
+# For both cost and time estimation
+npm run delivery-estimate both
 ```
+
+### Cost Estimation Mode
+Calculate delivery costs and applicable discounts for packages:
 
 Input format:
 ```
@@ -50,12 +60,8 @@ PKG2 15 5 OFR002
 PKG3 10 100 OFR003
 ```
 
-### Time Estimation
+### Time Estimation Mode
 Estimate delivery times based on vehicle configuration and package details:
-
-```bash
-npm run time-estimate
-```
 
 Input format:
 ```
@@ -85,11 +91,53 @@ npm test
 ## Core Algorithms
 
 ### Shipment Optimization
-The system uses a backtracking algorithm to create optimal shipments that maximize vehicle capacity utilization. The key functions include:
+The system uses a dynamic programming approach to create optimal shipments that maximize vehicle capacity utilization.
 
-- `createMaximumCapacityShipments`: Generates all possible shipments with the maximum number of packages that don't exceed the vehicle weight capacity
-- `createOptimalShipment`: Selects the optimal shipment based on weight and delivery time
-- not ideal for large number of packages(>20). Need to implement a better algorithm
+#### Dynamic Programming Approach
+
+The algorithm uses a shipment table (1D array) where each index represents a weight capacity, and the value at that index stores the best shipment configuration possible for that weight.
+
+##### Example: 3 Packages with Weight Limit of 6
+
+Consider these packages:
+- Package A: Weight = 2, Delivery Time = 1 hour
+- Package B: Weight = 3, Delivery Time = 2 hours
+- Package C: Weight = 4, Delivery Time = 1.5 hours
+
+The shipment table would be initialized as follows:
+
+| Weight Capacity | 0 | 1 | 2 | 3 | 4 | 5 | 6 |
+|----------------|---|---|---|---|---|---|---|
+| Initial State  | {} | null | null | null | null | null | null |
+
+Where `{}` represents an empty shipment with count=0, weight=0, deliveryTime=0, packages=[]
+
+After processing Package A (weight=2):
+
+| Weight Capacity | 0 | 1 | 2 | 3 | 4 | 5 | 6 |
+|----------------|---|---|---|---|---|---|---|
+| After Package A | {} | null | {A} | null | null | null | null |
+
+After processing Package B (weight=3):
+
+| Weight Capacity | 0 | 1 | 2 | 3 | 4 | 5 | 6 |
+|----------------|---|---|---|---|---|---|---|
+| After Package B | {} | null | {A} | {B} | null | {A,B} | null |
+
+After processing Package C (weight=4):
+
+| Weight Capacity | 0 | 1 | 2 | 3 | 4 | 5 | 6 |
+|----------------|---|---|---|---|---|---|---|
+| Final State    | {} | null | {A} | {B} | {C} | {A,B} | {A,C} |
+
+The algorithm then selects the optimal shipment by comparing all non-null entries based on:
+1. Maximum package count
+2. Maximum weight (if counts are equal)
+3. Minimum delivery time (if counts and weights are equal)
+
+In this example, both {A,B} and {A,C} have 2 packages, but {A,C} has a higher weight (6 vs 5), so {A,C} would be selected as the optimal shipment.
+
+This approach efficiently handles large numbers of packages and scales well with increasing vehicle capacity.
 
 ### Delivery Time Estimation
 Delivery time is calculated based on:
