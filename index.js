@@ -1,13 +1,13 @@
 import readline from 'readline';
-import * as packageService from '../services/package-service.js';
-import * as vehicleService from '../services/vehicle-service.js';
-import { loadSampleOffers } from '../services/offer-service.js';
+import * as packageService from './services/package-service.js';
+import * as vehicleService from './services/vehicle-service.js';
+import { loadSampleOffers } from './services/offer-service.js';
 import {
 	processInput,
 	handlePackageConfigInput,
 	handlePackageInput,
 	handleVehicleInput
-} from '../utils/input-validator.js';
+} from './utils/input-validator.js';
 
 const rl = readline.createInterface({
 	input: process.stdin,
@@ -22,6 +22,8 @@ let lineCount = 0;
 
 await loadSampleOffers();
 
+const mode = process.argv[2];
+
 rl.on('line', (line) => {
 	if (lineCount === 0) {
 		// Parse base delivery cost and number of packages
@@ -30,10 +32,7 @@ rl.on('line', (line) => {
 		numberOfPackages = config.numberOfPackages;
 		lineCount++;
 	} else {
-		if (packagesRead === numberOfPackages) {
-			// Calculate discount and delivery cost
-			packageService.estimateDeliveryCostAndDiscounts(baseDeliveryCost);
-
+		if (packagesRead === numberOfPackages && mode === 'time') {
 			// Parse vehicle configurations and initialize vehicle configurations
 			const vehicleConfig = processInput(line, handleVehicleInput);
 			vehicleService.init(vehicleConfig.count, vehicleConfig.speed, vehicleConfig.weight);
@@ -42,8 +41,15 @@ rl.on('line', (line) => {
 			packageService.estimateDeliveryTime();
 			process.exit();
 		}
+    
 		const pkg = processInput(line, handlePackageInput);
 		packageService.addPackage(pkg);
 		packagesRead++;
+
+		if (packagesRead === numberOfPackages) {
+			// Calculate discount and delivery cost
+			packageService.estimateDeliveryCostAndDiscounts(baseDeliveryCost, mode === 'cost');
+			process.exit();
+		}
 	}
 });

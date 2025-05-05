@@ -9,8 +9,8 @@
     "transform": {} 
   },
   "scripts": {
-    "time-estimate":"node entry-points/time-estimate.js",
-    "cost-estimate":"node entry-points/cost-estimate.js",
+    "time-estimate":"node index.js time",
+    "cost-estimate":"node index.js cost",
     "test": "npx --node-options=--experimental-vm-modules jest --silent"
   },
   "keywords": [],
