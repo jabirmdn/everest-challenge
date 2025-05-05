@@ -1,12 +1,15 @@
 import * as packageService from '../services/package-service.js';
+import * as offerService from '../services/offer-service.js';
 
 describe('Cost Estimation Tests', () => {
 	beforeEach(() => {
 		packageService.clearPackages();
+		offerService.clearOffers();
 	});
 
-	test('should calculate cost for the given sample in the challenge', () => {
+	test('should calculate cost for the given sample in the challenge', async () => {
 		const baseDeliveryCost = 100;
+		await offerService.loadSampleOffers();
 		packageService.addPackage({ id: 'PKG1', weight: 5, distance: 5, offerCode: 'OFR001' });
 		packageService.addPackage({ id: 'PKG2', weight: 15, distance: 5, offerCode: 'OFR002' });
 		packageService.addPackage({ id: 'PKG3', weight: 10, distance: 100, offerCode: 'OFR003' });
@@ -26,6 +29,21 @@ describe('Cost Estimation Tests', () => {
 
 	test('should apply OFR001 discount correctly', () => {
 		const baseDeliveryCost = 100;
+		offerService.addOffer({
+			code: 'OFR001',
+			discount: 10,
+			distance: {
+				max: 200,
+				minInclusive: false,
+				maxInclusive: false
+			},
+			weight: {
+				min: 70,
+				max: 200,
+				minInclusive: true,
+				maxInclusive: true
+			}
+		});
 		// OFR001: 10% discount for weight 70-200kg, distance < 200km
 		packageService.addPackage({ id: 'PKG1', weight: 80, distance: 100, offerCode: 'OFR001' });
 		packageService.estimateDeliveryCostAndDiscounts(baseDeliveryCost);
@@ -40,6 +58,22 @@ describe('Cost Estimation Tests', () => {
 
 	test('should apply OFR002 discount correctly', () => {
 		const baseDeliveryCost = 100;
+		offerService.addOffer({
+			code: 'OFR002',
+			discount: 7,
+			distance: {
+				min: 50,
+				max: 150,
+				minInclusive: true,
+				maxInclusive: true
+			},
+			weight: {
+				min: 100,
+				max: 250,
+				minInclusive: true,
+				maxInclusive: true
+			}
+		});
 		// OFR002: 7% discount for weight 100-250kg, distance 50-150km
 		packageService.addPackage({ id: 'PKG1', weight: 110, distance: 60, offerCode: 'OFR002' });
 		packageService.estimateDeliveryCostAndDiscounts(baseDeliveryCost);
@@ -54,6 +88,22 @@ describe('Cost Estimation Tests', () => {
 
 	test('should apply OFR003 discount correctly', () => {
 		const baseDeliveryCost = 100;
+		offerService.addOffer({
+			code: 'OFR003',
+			discount: 5,
+			distance: {
+				min: 50,
+				max: 250,
+				minInclusive: true,
+				maxInclusive: true
+			},
+			weight: {
+				min: 10,
+				max: 150,
+				minInclusive: true,
+				maxInclusive: true
+			}
+		});
 		// OFR003: 5% discount for weight 10-150kg, distance 50-250km
 		packageService.addPackage({ id: 'PKG1', weight: 15, distance: 120, offerCode: 'OFR003' });
 		packageService.estimateDeliveryCostAndDiscounts(baseDeliveryCost);

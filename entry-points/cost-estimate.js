@@ -1,6 +1,7 @@
 import readline from 'readline';
 import * as packageService from '../services/package-service.js';
 import { handlePackageConfigInput, handlePackageInput, processInput } from '../utils/input-validator.js';
+import { loadSampleOffers } from '../services/offer-service.js';
 
 const rl = readline.createInterface({
 	input: process.stdin,
@@ -12,6 +13,8 @@ let numberOfPackages = 0;
 let packagesRead = 0;
 
 let lineCount = 0;
+
+loadSampleOffers();
 
 rl.on('line', (line) => {
 	if (lineCount === 0) {

@@ -1,6 +1,7 @@
 import readline from 'readline';
 import * as packageService from '../services/package-service.js';
 import * as vehicleService from '../services/vehicle-service.js';
+import { loadSampleOffers } from '../services/offer-service.js';
 import {
 	processInput,
 	handlePackageConfigInput,
@@ -18,6 +19,8 @@ let numberOfPackages = 0;
 let packagesRead = 0;
 
 let lineCount = 0;
+
+await loadSampleOffers();
 
 rl.on('line', (line) => {
 	if (lineCount === 0) {

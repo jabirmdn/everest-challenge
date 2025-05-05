@@ -89,7 +89,6 @@ function createMaximumCapacityShipments(packages) {
 			// Add package to shipment and continue recursion
 			candidatePackages.push(packageToAdd);
 			const cacheKey = `${candidatePackages.map((pkg) => pkg.id).join('-')}-${i + 1}-${newTotalWeight}`;
-			console.log(cacheKey);
 			if (!cache[cacheKey]) {
 				cache[cacheKey] = true;
 				findValidShipments(candidatePackages, i + 1, newTotalWeight);
