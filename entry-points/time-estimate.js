@@ -1,6 +1,12 @@
 import readline from 'readline';
 import * as packageService from '../services/package-service.js';
 import * as vehicleService from '../services/vehicle-service.js';
+import {
+	processInput,
+	handlePackageConfigInput,
+	handlePackageInput,
+	handleVehicleInput
+} from '../utils/input-validator.js';
 
 const rl = readline.createInterface({
 	input: process.stdin,
@@ -16,36 +22,25 @@ let lineCount = 0;
 rl.on('line', (line) => {
 	if (lineCount === 0) {
 		// Parse base delivery cost and number of packages
-		const [cost, count] = line.trim().split(' ').map(Number);
-		baseDeliveryCost = cost;
-		numberOfPackages = count;
+		const config = processInput(line, handlePackageConfigInput);
+		baseDeliveryCost = config.baseDeliveryCost;
+		numberOfPackages = config.numberOfPackages;
 		lineCount++;
 	} else {
 		if (packagesRead === numberOfPackages) {
 			// Calculate discount and delivery cost
 			packageService.estimateDeliveryCostAndDiscounts(baseDeliveryCost);
 
-			// Parse vehicle configurations: count speed_in_kmph max_weight_in_kg
-			const [count, speed, weight] = line.trim().split(' ').map(Number);
-
-			// Initialize vehicles
-			vehicleService.init(count, speed, weight);
+			// Parse vehicle configurations and initialize vehicle configurations
+			const vehicleConfig = processInput(line, handleVehicleInput);
+			vehicleService.init(vehicleConfig.count, vehicleConfig.speed, vehicleConfig.weight);
 
 			// Calculate and log delivery time, discount and total cost
 			packageService.estimateDeliveryTime();
-
-			rl.close();
+			process.exit();
 		}
-		// Parse package lines: pkg_id pkg_weight_in_kg distance_in_km offer_code
-		const [id, weight, distance, offerCode] = line.trim().split(' ');
-
-		packageService.addPackage({
-			id,
-			weight: Number(weight),
-			distance: Number(distance),
-			offerCode
-		});
-
+		const pkg = processInput(line, handlePackageInput);
+		packageService.addPackage(pkg);
 		packagesRead++;
 	}
 });

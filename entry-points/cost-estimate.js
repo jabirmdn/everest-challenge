@@ -1,5 +1,6 @@
 import readline from 'readline';
 import * as packageService from '../services/package-service.js';
+import { handlePackageConfigInput, handlePackageInput, processInput } from '../utils/input-validator.js';
 
 const rl = readline.createInterface({
 	input: process.stdin,
@@ -15,21 +16,14 @@ let lineCount = 0;
 rl.on('line', (line) => {
 	if (lineCount === 0) {
 		// Parse base delivery cost and number of packages
-		const [cost, count] = line.trim().split(' ').map(Number);
-		baseDeliveryCost = cost;
-		numberOfPackages = count;
+		const config = processInput(line, handlePackageConfigInput);
+		baseDeliveryCost = config.baseDeliveryCost;
+		numberOfPackages = config.numberOfPackages;
 		lineCount++;
 	} else {
 		// Parse package lines: pkg_id pkg_weight_in_kg distance_in_km offer_code
-		const [id, weight, distance, offerCode] = line.trim().split(' ');
-
-		packageService.addPackage({
-			id,
-			weight: Number(weight),
-			distance: Number(distance),
-			offerCode
-		});
-
+		const pkg = processInput(line, handlePackageInput);
+		packageService.addPackage(pkg);
 		packagesRead++;
 
 		// If all packages are read, calculate delivery cost and log results
